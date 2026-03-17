@@ -1,0 +1,405 @@
+/* 基本重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* 停用雙擊縮放及選擇文字，避免手機遊玩時誤觸 */
+    user-select: none;
+    touch-action: none;
+}
+
+body {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    font-family: 'Courier New', Courier, monospace, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    /* PC最大寬度 */
+    aspect-ratio: 4/3;
+    /* 確保畫布比例 */
+    background-color: #87CEEB;
+    /* 預設天空藍 */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* 遊戲畫布 */
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+    /* 確保像素風格不模糊 */
+}
+
+/* 頂部 UI */
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #fff;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#ui-layer .ui-group {
+    display: flex;
+    gap: 15px;
+}
+
+/* 遊戲覆蓋層 (死亡/過關) */
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    transition: opacity 0.3s;
+}
+
+#overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#overlay-title {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #f1c40f;
+    text-shadow: 3px 3px 0 #d35400;
+}
+
+#overlay-desc {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    text-align: center;
+    line-height: 1.5;
+    color: white;
+}
+
+/* --- 選單系統 UI --- */
+#menu-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-screen {
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.menu-screen.active {
+    display: flex;
+}
+
+.game-title {
+    font-size: 4rem;
+    color: #f1c40f;
+    text-shadow: 4px 4px 0 #c0392b;
+    margin-top: 50px;
+    text-align: center;
+}
+
+.game-subtitle {
+    font-size: 1.5rem;
+    color: #ecf0f1;
+    margin-bottom: 40px;
+}
+
+.stats-text {
+    font-size: 1.2rem;
+    margin-top: 20px;
+    color: #f39c12;
+}
+
+.control-hint {
+    font-size: 0.9rem;
+    color: #bdc3c7;
+    margin-top: 30px;
+    text-align: center;
+}
+
+/* 共用按鈕樣式 */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px;
+}
+
+.btn {
+    padding: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: inherit;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.1s, filter 0.2s;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+.btn.primary {
+    background: linear-gradient(to bottom, #2ecc71, #27ae60);
+    color: white;
+}
+
+.btn.secondary {
+    background: linear-gradient(to bottom, #3498db, #2980b9);
+    color: white;
+}
+
+.btn.danger {
+    background: linear-gradient(to bottom, #e74c3c, #c0392b);
+    color: white;
+    font-size: 1.2rem;
+}
+
+.back-btn {
+    margin-top: 30px;
+    width: 250px;
+}
+
+#overlay-btn {
+    padding: 15px 40px;
+    font-size: 2rem;
+    font-weight: bold;
+    font-family: inherit;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.1s, filter 0.2s;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+    background: linear-gradient(to bottom, #f1c40f, #d35400);
+    color: white;
+}
+
+/* 關卡選擇 UI */
+#level-select-menu h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #f1c40f;
+}
+
+.world-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.world-tab {
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.world-tab.active {
+    background: #e67e22;
+    border-color: white;
+}
+
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.level-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 20px 0;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.level-card.unlocked {
+    background: #34495e;
+    border-color: #3498db;
+}
+
+.level-card.unlocked:hover {
+    transform: scale(1.05);
+    background: #2980b9;
+}
+
+.level-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.level-card .lvl-num {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.level-card.boss {
+    border-color: #e74c3c;
+    background: #c0392b;
+}
+
+/* 行動裝置觸控控制 */
+#touch-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    /* 預設隱藏交由 js 動態控制，這裡保持 flex 排版結構 */
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 15;
+    pointer-events: none;
+}
+
+.touch-btn {
+    pointer-events: auto;
+    background-color: rgba(255, 255, 255, 0.4);
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    width: 65px;
+    height: 65px;
+    font-size: 1.5rem;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(2px);
+    transition: 0.1s;
+}
+
+.touch-btn:active,
+.touch-btn.active {
+    background-color: rgba(200, 200, 200, 0.8);
+    transform: scale(0.9);
+}
+
+#dpad {
+    display: flex;
+    gap: 10px;
+}
+
+#action-pad {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.touch-btn.action {
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+}
+
+.touch-btn.action.dash {
+    background-color: rgba(52, 152, 219, 0.6);
+    border-color: #2980b9;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 5px;
+}
+
+.touch-btn.action.dash:active,
+.touch-btn.action.dash.active {
+    background-color: rgba(41, 128, 185, 0.9);
+}
+
+.touch-btn.action.jump {
+    background-color: rgba(231, 76, 60, 0.6);
+    border-color: #c0392b;
+    width: 75px;
+    height: 75px;
+}
+
+.touch-btn.action.jump:active,
+.touch-btn.action.jump.active {
+    background-color: rgba(192, 57, 43, 0.9);
+}
+
+/* 響應式設計：小螢幕時顯示搖桿，滿版顯示 */
+@media (max-width: 800px) {
+    #game-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        aspect-ratio: auto;
+        border-radius: 0;
+    }
+
+    #ui-layer {
+        font-size: 1.1rem;
+    }
+
+    .game-title {
+        font-size: 2.5rem;
+    }
+
+    .level-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .level-card {
+        padding: 15px 0;
+    }
+
+    .level-card .lvl-num {
+        font-size: 1.5rem;
+    }
+}

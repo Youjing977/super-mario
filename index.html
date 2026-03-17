@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>馬力歐風格跳躍遊戲</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- 遊戲的主容器：負責限制遊戲畫面的呈現範圍，防止內容溢出到整個網頁 -->
+    <div id="game-container">
+        <!-- 
+            UI 資訊層 (Layer)
+            這層會覆寫在畫布 (Canvas) 之上 (利用 CSS 的 absolute positioning)。
+            負責顯示玩家即時的遊戲狀態，如：分數、生命值、收集到的金幣數。
+        -->
+        <div id="ui-layer" style="display: none;">
+            <div class="ui-group">
+                <span id="score-display">SCORE: 0</span>
+                <span id="coin-display">🪙 0</span>
+            </div>
+            <div class="ui-group">
+                <span id="level-display">WORLD 1-1</span>
+            </div>
+            <div class="ui-group">
+                <span id="lives-display">❤️ 3</span>
+            </div>
+        </div>
+
+        <!-- 遊戲畫布 -->
+        <canvas id="gameCanvas" width="800" height="600" style="display: none;"></canvas>
+
+        <!-- 觸控控制層 -->
+        <div id="touch-controls" style="display: none;">
+            <!-- 左下角虛擬方向鍵 -->
+            <div id="dpad">
+                <button id="btn-left" class="touch-btn">◀</button>
+                <button id="btn-right" class="touch-btn">▶</button>
+            </div>
+            <!-- 右下角動作按鈕群 -->
+            <div id="action-pad">
+                <button id="btn-dash" class="touch-btn action dash">DASH</button>
+                <button id="btn-jump" class="touch-btn action jump">JUMP</button>
+            </div>
+        </div>
+
+        <!-- 系統選單層 (首頁 / 關卡選擇) -->
+        <div id="menu-layer">
+            <!-- 首頁佈局 -->
+            <div id="main-menu" class="menu-screen active">
+                <h1 class="game-title">超級平台冒險</h1>
+                <h2 class="game-subtitle">Super Platform Adventure</h2>
+                <div class="menu-buttons">
+                    <button id="btn-start-game" class="btn primary">開始遊戲</button>
+                    <button id="btn-level-select" class="btn secondary">選擇關卡</button>
+                    <button id="btn-reset-save" class="btn danger">重置存檔</button>
+                </div>
+                <p class="stats-text" id="main-stats">最高分數: 0 | 金幣: 0</p>
+                <p class="control-hint">PC: 方向鍵移動, 空白鍵跳躍, Shift衝刺<br>手機: 使用螢幕按鈕</p>
+            </div>
+
+            <!-- 關卡選擇佈局 -->
+            <div id="level-select-menu" class="menu-screen">
+                <h2>世界地圖</h2>
+                <!-- 世界分類標籤 -->
+                <div class="world-tabs" id="world-tabs">
+                    <!-- JS 動態生成 -->
+                </div>
+                <!-- 關卡方塊 -->
+                <div class="level-grid" id="level-grid">
+                    <!-- JS 動態生成 -->
+                </div>
+                <button id="btn-back-menu" class="btn secondary back-btn">返回主選單</button>
+            </div>
+        </div>
+
+        <!-- 覆蓋層 (死亡重來/過關畫面) -->
+        <div id="overlay" class="hidden">
+            <h1 id="overlay-title">準備開始</h1>
+            <p id="overlay-desc">描述</p>
+            <button id="overlay-btn">確認</button>
+        </div>
+    </div>
+
+    <!-- 系統腳本引入 -->
+    <script src="js/save.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/physics.js"></script>
+    <!-- 組件腳本引入 (注意相依順序：先引入定義類別的) -->
+    <script src="js/entities.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/bosses.js"></script>
+    <script src="js/levels.js"></script>
+    <!-- 主程式引入 -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>

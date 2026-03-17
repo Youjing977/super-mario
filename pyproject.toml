@@ -1,0 +1,7 @@
+[project]
+name = "mario-style-game"
+version = "0.1.0"
+description = "A standard HTTP server starter pack for local development."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
