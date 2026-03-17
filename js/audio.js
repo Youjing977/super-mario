@@ -103,12 +103,31 @@ const AudioObj = {
         }
     },
 
-    // BGM 功能暫時保留，可以加入外部音樂檔或更複雜的合成音
+    // BGM 背景音樂播放功能
+    bgm: null, // HTML5 Audio 物件（用於播放 MP3 背景音樂）
+
     playBGM() {
-        // 因合成BGM過於複雜，在此處僅輸出Log，您可以之後引入 <audio> 標籤處理 BGM
-        console.log("Play BGM (可在此處加入音樂檔案播放邏輯)");
+        try {
+            // 如果尚未建立 Audio 物件，則建立一個
+            if (!this.bgm) {
+                this.bgm = new Audio('alexgrohl-energetic-action-sport-500409.mp3');
+                this.bgm.loop = true;   // 啟用循環播放
+                this.bgm.volume = 0.4;  // 音量設為 40%，避免蓋過音效
+            }
+            // 從頭開始播放
+            this.bgm.currentTime = 0;
+            this.bgm.play().catch(err => {
+                console.warn('BGM 播放失敗（可能是瀏覽器自動播放限制）:', err);
+            });
+        } catch (e) {
+            console.warn('BGM 初始化失敗:', e);
+        }
     },
+
     stopBGM() {
-        console.log("Stop BGM (可在此處加入音樂檔案停止邏輯)");
+        if (this.bgm) {
+            this.bgm.pause();
+            this.bgm.currentTime = 0; // 重置播放位置
+        }
     }
 };
