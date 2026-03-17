@@ -104,20 +104,39 @@ const AudioObj = {
     },
 
     // BGM 背景音樂播放功能
-    bgm: null, // HTML5 Audio 物件（用於播放 MP3 背景音樂）
+    // 使用 createMediaElementSource 將 HTML5 Audio 接入 Web Audio API
+    // 讓 BGM 與音效走同一個音訊管線，避免互相干擾
+    bgm: null,           // HTML5 Audio 元素
+    bgmSource: null,     // MediaElementAudioSourceNode（只能建立一次）
+    bgmGain: null,       // 用於控制 BGM 音量的 GainNode
 
     playBGM() {
         try {
-            // 如果尚未建立 Audio 物件，則建立一個
+            if (!this.audioCtx) this.init();
+
+            // 首次建立 BGM 音訊鏈
             if (!this.bgm) {
                 this.bgm = new Audio('alexgrohl-energetic-action-sport-500409.mp3');
-                this.bgm.loop = true;   // 啟用循環播放
-                this.bgm.volume = 0.4;  // 音量設為 40%，避免蓋過音效
+                this.bgm.loop = true; // 啟用循環播放
+
+                // 將 Audio 元素接入 Web Audio API 管線
+                this.bgmSource = this.audioCtx.createMediaElementSource(this.bgm);
+                this.bgmGain = this.audioCtx.createGain();
+                this.bgmGain.gain.value = 0.4; // BGM 音量 40%
+
+                // 連接：Audio元素 → 音量控制 → 喇叭輸出
+                this.bgmSource.connect(this.bgmGain);
+                this.bgmGain.connect(this.audioCtx.destination);
             }
-            // 從頭開始播放
+
+            // 確保 AudioContext 未被暫停（瀏覽器自動播放政策）
+            if (this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume();
+            }
+
             this.bgm.currentTime = 0;
             this.bgm.play().catch(err => {
-                console.warn('BGM 播放失敗（可能是瀏覽器自動播放限制）:', err);
+                console.warn('BGM 播放失敗:', err);
             });
         } catch (e) {
             console.warn('BGM 初始化失敗:', e);
@@ -127,7 +146,7 @@ const AudioObj = {
     stopBGM() {
         if (this.bgm) {
             this.bgm.pause();
-            this.bgm.currentTime = 0; // 重置播放位置
+            this.bgm.currentTime = 0;
         }
     }
 };
